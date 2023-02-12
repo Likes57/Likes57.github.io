@@ -1,0 +1,294 @@
+@media (max-width: 1199.98px)
+    .menu
+        &_item
+            padding-right: 20px
+        &_link
+            font-size: 13px
+    .promo
+        &_header
+            font-size: 50px
+    .cause
+        &_block
+            align-items: flex-start
+        &_descr
+            width: 300px
+    .mobile
+        padding: 48px 0 55px 0
+        &_item
+            width: 300px
+    .world
+        height: 550px
+        background: url('../img/world_bg.jpg') center center/cover no-repeat
+        .bg_hidden
+            display: none
+@media (max-width: 991.98px)
+    .menu
+        &_item
+            padding-right: 8px
+        &_link
+            font-size: 10px
+    .subheader
+        &_logo
+            font-size: 26px
+            margin-top: 12px
+        &_official
+            font-size: 11px
+        &_phone
+            font-size: 18px
+        &_btn
+            width: 100%
+            margin-top: 21px
+            height: 40px
+    .promo
+        &_header
+            font-size: 40px
+        &_subheader
+            font-size: 30px
+        &_descr
+            font-size: 14px
+    .cause
+        &_block
+            flex-direction: column
+            align-items: center
+        &_descr
+            width: 300px
+            margin-top: 30px
+    .mobile
+        &_item
+            width: 220px
+            height: 195px
+            background-size: 100%
+            padding-top: 60px
+            &_subtitle
+                font-size: 17px
+            &_plus
+                bottom: 30px
+    .world
+        height: 550px
+        &_subtitle
+            margin-top: 300px
+    .footer
+        &_icon
+            width: 30px
+            height: 30px
+            margin-left: 12px
+        &_store
+            margin-right: 3px
+            img
+                height: 23px
+                margin-right: 1px
+        &_wrapper
+            width: 340px
+@media (max-width: 767.98px)
+    .menu
+        position: fixed
+        flex-direction: column
+        justify-content: center
+        align-items: center
+        top: 0
+        left: -100%
+        width: 50%
+        height: 100vh
+        padding: 20px 15px
+        background-color: rgba(0, 0, 0, .8)
+        transition: 0.6s all
+        &_active
+            left: 0
+        &_item
+            padding-right: 0
+            border: none
+            margin: 10px 0
+        &_link
+            font-size: 20px
+    .subheader
+        &_call
+            display: none
+    .hamburger
+        display: block
+        position: absolute
+        right: 10px
+        top: 50%
+        transform: translateY(-50%)
+        width: 26px
+        height: 12px
+        span
+            display: block
+            height: 2px
+            width: 100%
+            background-color: white
+            margin-bottom: 2px
+            transition: 0.5s all
+        &_active
+            span
+                margin-bottom: -2px
+                &:nth-child(1)
+                    transform: translateY(3px) rotate(-45deg)
+                &:nth-child(2)
+                    display: none
+                &:nth-child(3)
+                    transform: translateY(3px) rotate(45deg)
+    .xs-hidden
+        display: none
+    .xs-visible
+        display: block
+    .subheader
+        &_phone
+            margin-top: 10px
+            color: #FFFFFF
+            font-size: 16px
+            font-weight: 400
+            text-align: center
+        &_btn
+            display: block
+            width: 200px
+            height: 40px
+            margin: 10px auto 0 auto
+    .promo
+        &_header
+            line-height: 45px
+    .mobile
+        padding: 30px 0 27px 0
+    .car
+        min-height: 700px
+        padding: 35px 0 50px 0
+        .title
+            line-height: 50px
+        img
+            width: 100%
+        &_bg
+            &_black
+                height: 450px
+    .require
+        padding: 35px 0 25px 0
+    .footer
+        padding: 12px 0 285px 0
+        .s-hidden
+            display: none
+        .s-visible
+            display: flex
+            width: 100%
+        &_wrapper
+            width: 420px
+            &_nav
+                a
+                    font-size: 18px
+            &_subnav
+                a
+                    font-size: 13px
+        &_icon
+            position: relative
+            justify-content: center
+            margin: 25px 0 0 0
+            &_all
+                height: 50px
+                width: 50px
+                padding: 12px
+        &_store
+            position: relative
+            justify-content: space-evenly
+            margin: 35px 0 0 0
+            img
+                height: 40px
+                margin-right: 10px
+        &_language
+            font-size: 15px
+@media (max-width: 575.98px)
+    .es-hidden
+        display: none
+    header
+        height: 32px
+    nav
+        height: 32px
+    .subheader
+        height: 62px
+        top: 32px
+        &_phone
+            font-size: 12px
+        &_btn
+            width: 110px
+            height: 22px
+            font-size: 10px
+    .promo
+        min-height: 430px
+        height: 430px
+        padding: 120px 0 35px 0
+        background: url("../img/bg_small.png") center center/cover no-repeat
+        &_header
+            font-size: 34px
+            line-height: 35px
+            br
+                display: block
+        &_subheader
+            font-size: 24px
+            line-height: 23px
+            margin-top: 28px
+            br
+                display: block
+        &_btn
+            width: 230px
+            height: 55px
+            margin: 60px auto 0 auto
+    .menu
+        width: 85%
+        &_item
+            width: 100%
+            text-align: center
+            padding: 5px 0
+            &_link
+                display: block
+    .title
+        font-size: 18px
+        margin-top: 15px
+    .mobile
+        padding: 28px 0 0 0
+        &_item
+            width: 300px
+            height: 260px
+            &_subtitle
+                font-size: 16px
+    .car
+        min-height: 393px
+        padding: 27px 0 31px 0
+        background: #070716
+        &_logo
+            margin-top: 36px
+        &_descr
+            position: relative
+            padding-top: 23px
+            color: $color_white
+            br
+                display: block
+        &_bg
+            &_black
+                display: none
+    .require
+        padding: 22px 0 30px 0
+    .world
+        height: 360px
+        padding: 24px 0 30px 0
+        &_subtitle
+            margin-top: 180px
+    .footer
+        &_wrapper
+            width: 300px
+            &_nav
+                a
+                    font-size: 14px
+            &_subnav
+                flex-wrap: wrap
+                margin-top: 3px
+                a
+                    font-size: 11px
+                    margin-right: 21px
+                    line-height: 25px
+        &_icon
+            &_all
+                height: 38px
+                width: 38px
+                padding: 10px
+                margin-right: 10px
+        &_store
+            justify-content: space-evenly
+            img
+                height: 30px
+                margin: 0
