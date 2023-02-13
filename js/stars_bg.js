@@ -9,7 +9,7 @@
 let background = document.getElementById("bgCanvas"),
     bgCtx = background.getContext("2d"),
     width = window.innerWidth,
-    height = document.body.offsetHeight;
+    height = window.innerHeight;
 
 (height < 400) ? height = 400 : height;
 
