@@ -1,248 +1,320 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Magic Scratch Card</title>
   <style>
-    /* Reset & Body */
-    * { box-sizing: border-box; margin:0; padding:0; }
+    :root {
+      --font-main: 'Segoe UI', Tahoma, Verdana, sans-serif;
+      --bg-start: #1a1f36;
+      --bg-end: #2e324b;
+      --grad-start: #ff9a9e;
+      --grad-end: #fad0c4;
+      --card-bg: #2e324b;
+      --radius: 12px;
+      --spacing: 16px;
+      --shadow: 0 6px 20px rgba(0,0,0,0.4);
+      --transition: 0.3s ease;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
+    html, body { height:100%; }
     body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      background: #1a1f36;
-      font-family: 'Verdana', sans-serif;
-      color: #f0f0f0;
+      font-family: var(--font-main);
+      background: linear-gradient(45deg, var(--bg-start), var(--bg-end), var(--bg-start));
+      background-size:600% 600%; animation:bgAnim 20s ease infinite;
+      color:#fff; display:flex; align-items:center; justify-content:center;
+      padding: var(--spacing); overflow:hidden;
     }
-    .container {
-      width: 100%; max-width: 460px;
-      padding: 20px;
-      text-align: center;
+    @keyframes bgAnim {
+      0%{background-position:0% 50%}
+      50%{background-position:100% 50%}
+      100%{background-position:0% 50%}
     }
-    h1 {
-      font-size: 2.2rem;
-      margin-bottom: 8px;
-      background: linear-gradient(90deg, #ff9a9e, #fad0c4);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+    @keyframes fadeIn { from {opacity:0;transform:translateY(20px)} to {opacity:1;transform:translateY(0)} }
+    @keyframes gradShift { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+
+    .app { width:100%; max-width:480px; text-align:center; animation:fadeIn .6s ease-out; }
+    .heading {
+      font-size:2.5rem; margin-bottom:8px;
+      background:linear-gradient(90deg,var(--grad-start),var(--grad-end));
+      background-size:200% 200%; -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      animation:gradShift 4s linear infinite;
     }
-    p.subtitle {
-      font-size: 1rem;
-      margin-bottom: 20px;
-      opacity: 0.8;
+    .subheading { font-size:1rem; opacity:.8; margin-bottom:calc(var(--spacing)*2); }
+
+    .form {
+      background:var(--card-bg); border-radius:var(--radius);
+      padding:var(--spacing); box-shadow:var(--shadow);
+      display:grid; gap:var(--spacing); margin-bottom:calc(var(--spacing)*2);
     }
-    /* Input Form */
-    .form-box {
-      background: #2e324b;
-      border-radius: 12px;
-      padding: 18px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-      display: grid; gap:12px;
-      margin-bottom: 20px;
+    .form__input, .form__textarea {
+      width:100%; padding:12px; font-size:1rem;
+      border:none; border-radius:calc(var(--radius)/2);
+      background:#272b45; color:#e0e0e0; outline:none;
+      transition:background var(--transition);
     }
-    .form-box input,
-    .form-box textarea {
-      width: 100%;
-      padding: 10px;
-      font-size: 0.95rem;
-      border: 1px solid #444862;
-      border-radius: 6px;
-      background: #272b45;
-      color: #e0e0e0;
-      outline: none;
+    .form__input:focus, .form__textarea:focus { background:#303450; }
+
+    .pattern-options { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+    .pattern-options label { cursor:pointer; }
+    .pattern-preview {
+      width:50px; height:50px; border:2px solid #444;
+      border-radius:4px; display:block;
     }
-    .form-box button {
-      padding: 12px;
-      font-size: 1rem;
-      border: none;
-      border-radius: 6px;
-      background: #ff9a9e;
-      color: #1a1f36;
-      cursor: pointer;
-      transition: transform 0.2s;
+    .pattern-options input[type=radio] { display:none; }
+    .pattern-options input[type=radio]:checked + canvas {
+      outline:3px solid var(--grad-end);
     }
-    .form-box button:hover {
-      transform: scale(1.03);
+
+    .form__button {
+      padding:12px; font-size:1rem; font-weight:600;
+      color:var(--bg-start);
+      background:linear-gradient(90deg,var(--grad-start),var(--grad-end));
+      border:none; border-radius:calc(var(--radius)/2);
+      cursor:pointer; transition:transform var(--transition),box-shadow var(--transition);
     }
-    /* Link Box */
-    .link-box {
-      background: #2e324b;
-      border-radius: 12px;
-      padding: 16px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-      margin-bottom: 20px;
-      display: none;
+    .form__button:hover {
+      animation:pulse 1.5s ease-in-out infinite;
+      box-shadow:0 0 10px var(--grad-end);
     }
-    .link-box p { margin-bottom: 8px; font-weight: bold; }
-    .link-box input {
-      width: calc(100% - 20px);
-      padding: 8px;
-      border: 1px solid #444862;
-      border-radius: 6px;
-      background: #272b45;
-      color: #e0e0e0;
-      margin-bottom: 10px;
+
+    .link {
+      background:var(--card-bg); border-radius:var(--radius);
+      padding:var(--spacing); box-shadow:var(--shadow);
+      margin-bottom:calc(var(--spacing)*2); display:none; text-align:left;
     }
-    .link-box .actions {
-      display: flex; justify-content: space-between; gap:8px;
+    .link__input {
+      width:100%; padding:12px; font-size:.95rem;
+      border:none; border-radius:calc(var(--radius)/2);
+      background:#272b45; color:#e0e0e0; margin-bottom:var(--spacing);
     }
-    .link-box .actions button {
-      flex:1;
-      padding: 10px;
-      border: none;
-      border-radius: 6px;
-      background: #fad0c4;
-      color: #1a1f36;
-      cursor: pointer;
-      transition: opacity 0.2s;
+    .link__actions { display:flex; gap:var(--spacing); }
+    .link__button {
+      flex:1; padding:12px; font-size:.95rem; font-weight:600;
+      color:var(--bg-start);
+      background:linear-gradient(90deg,var(--grad-start),var(--grad-end));
+      border:none; border-radius:calc(var(--radius)/2);
+      cursor:pointer; transition:opacity var(--transition);
     }
-    .link-box .actions button:hover { opacity: 0.8; }
-    /* Card */
-    .card {
-      position: relative;
-      width: 100%; aspect-ratio:4/3;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-      display: none;
+    .link__button:hover { opacity:.8; }
+
+    .scratch {
+      position:relative; width:100%; aspect-ratio:4/3;
+      border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow);
+      display:none; animation:fadeIn 1s ease-out; cursor:crosshair;
     }
-    .card::before {
-      content:'';
+    .scratch__background {
       position:absolute; inset:0;
-      background: radial-gradient(circle at top left, #567df4, #2c3e50);
+      background:radial-gradient(circle at top left,#567df4,#2c3e50);
       z-index:0;
     }
-    .card-content {
-      position: relative; z-index:1;
-      padding: 24px;
-      text-align: center;
+    .scratch__shine {
+      position:absolute; inset:0; pointer-events:none; z-index:3;
+      background:linear-gradient(120deg,rgba(255,255,255,0.2),transparent,rgba(255,255,255,0.2));
+      transform:translateX(-100%); animation:shine 3s infinite;
     }
-    .card-content h2 {
-      font-size: 1.6rem;
-      margin-bottom: 12px;
+    @keyframes shine { 100%{transform:translateX(200%)} }
+    .scratch__content {
+      position:relative; z-index:1; padding:var(--spacing); text-align:center; color:#f0f0f0;
     }
-    .card-content p {
-      font-size: 1rem;
-      line-height:1.4;
-    }
-    #scratch {
-      position:absolute; inset:0;
-      z-index:2;
-      cursor: crosshair;
-    }
+    .scratch__title { font-size:1.8rem; margin-bottom:8px; font-weight:700; }
+    .scratch__message { font-size:1rem; line-height:1.4; }
+    .scratch__canvas { position:absolute; inset:0; z-index:2; }
   </style>
 </head>
 <body>
-<div class="container">
-  <h1>Magic Scratch Card</h1>
-  <p class="subtitle">Заховайте таємницю та здивуйте друзів!</p>
+<div class="app">
+  <header>
+    <h1 class="heading">Magic Scratch Card</h1>
+    <p class="subheading">Приховай сюрприз та вражай друзів!</p>
+  </header>
 
-  <div class="form-box" id="formBox">
-    <input type="text" id="titleInput" placeholder="Заголовок (наприклад: You Rock!)" />
-    <textarea id="msgInput" rows="3" placeholder="Ваш секретний текст..."></textarea>
-    <button id="makeBtn">Створити</button>
-  </div>
-
-  <div class="link-box" id="linkBox">
-    <p>Готово! Поділіться цим посиланням:</p>
-    <input type="text" id="linkInput" readonly />
-    <div class="actions">
-      <button id="copyLink">Копіювати</button>
-      <button id="viewLink">Переглянути</button>
+  <form class="form" id="createForm">
+    <input id="titleInput"    class="form__input"    placeholder="Заголовок..." required />
+    <textarea id="msgInput"   class="form__textarea" placeholder="Секретний текст..." required></textarea>
+    <label>Колір фольги: <input type="color" id="colorPicker" value="#888888" /></label>
+    <div class="pattern-options">
+      <label><input type="radio" name="pattern" value="diagonal" checked /><canvas class="pattern-preview" data-pattern="diagonal"></canvas></label>
+      <label><input type="radio" name="pattern" value="dots" /><canvas class="pattern-preview" data-pattern="dots"></canvas></label>
+      <label><input type="radio" name="pattern" value="stripes" /><canvas class="pattern-preview" data-pattern="stripes"></canvas></label>
+      <label><input type="radio" name="pattern" value="grid" /><canvas class="pattern-preview" data-pattern="grid"></canvas></label>
+      <label><input type="radio" name="pattern" value="waves" /><canvas class="pattern-preview" data-pattern="waves"></canvas></label>
     </div>
-  </div>
+    <button type="button" id="makeBtn" class="form__button">✨ Створити</button>
+  </form>
 
-  <div class="card" id="cardBox">
-    <div class="card-content">
-      <h2 id="cardTitle">Hello!</h2>
-      <p id="cardMsg">Scratch to reveal your surprise!</p>
+  <section class="link" id="linkDisplay">
+    <p>🎉 Ваша картка готова!</p>
+    <input id="linkInput" class="link__input" readonly />
+    <div class="link__actions">
+      <button id="copyLinkBtn" class="link__button">📋 Копіювати</button>
+      <button id="viewLinkBtn" class="link__button">🔗 Переглянути</button>
     </div>
-    <canvas id="scratch"></canvas>
-  </div>
+  </section>
+
+  <section class="scratch" id="scratchArea">
+    <div class="scratch__background"></div>
+    <div class="scratch__shine"></div>
+    <div class="scratch__content">
+      <h2 id="cardTitle" class="scratch__title">Привіт!</h2>
+      <p id="cardMsg"   class="scratch__message">Стерши фольгу, щоб побачити сюрприз!</p>
+    </div>
+    <canvas id="scratchCanvas" class="scratch__canvas"></canvas>
+  </section>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 <script>
-  const formBox = document.getElementById('formBox');
-  const linkBox = document.getElementById('linkBox');
-  const cardBox = document.getElementById('cardBox');
-  const titleInput = document.getElementById('titleInput');
-  const msgInput = document.getElementById('msgInput');
-  const makeBtn = document.getElementById('makeBtn');
-  const linkInput = document.getElementById('linkInput');
-  const copyLink = document.getElementById('copyLink');
-  const viewLink = document.getElementById('viewLink');
-  const cardTitle = document.getElementById('cardTitle');
-  const cardMsg = document.getElementById('cardMsg');
+  const titleInput  = document.getElementById('titleInput');
+  const msgInput    = document.getElementById('msgInput');
+  const colorPicker = document.getElementById('colorPicker');
+  const makeBtn     = document.getElementById('makeBtn');
+  const linkDisplay = document.getElementById('linkDisplay');
+  const linkInput   = document.getElementById('linkInput');
+  const copyBtn     = document.getElementById('copyLinkBtn');
+  const viewBtn     = document.getElementById('viewLinkBtn');
+  const scratchArea = document.getElementById('scratchArea');
+  const cardTitle   = document.getElementById('cardTitle');
+  const cardMsg     = document.getElementById('cardMsg');
+  const previews    = document.querySelectorAll('.pattern-preview');
 
-  function parseParams() {
-    const p = new URLSearchParams(window.location.search);
-    return { t: p.get('t'), m: p.get('m') };
+  // Прев’ю патернів
+  previews.forEach(c => c.width = c.height = 50);
+  function drawPreview(c) {
+    const type = c.dataset.pattern;
+    const ctx  = c.getContext('2d');
+    const s    = c.width;
+    ctx.clearRect(0,0,s,s);
+    ctx.fillStyle   = colorPicker.value;
+    ctx.fillRect(0,0,s,s);
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.lineWidth   = 2;
+    switch(type) {
+      case 'dots':
+        ctx.beginPath(); ctx.arc(s/2,s/2,s*0.2,0,2*Math.PI); ctx.fill(); break;
+      case 'stripes':
+        ctx.beginPath(); ctx.moveTo(0,s/2); ctx.lineTo(s,s/2); ctx.stroke(); break;
+      case 'grid':
+        ctx.beginPath();
+        ctx.moveTo(s/2,0); ctx.lineTo(s/2,s);
+        ctx.moveTo(0,s/2); ctx.lineTo(s,s/2);
+        ctx.stroke(); break;
+      case 'waves':
+        ctx.beginPath(); for(let i=0;i<s;i+=8) ctx.arc(i,s/2,4,0,Math.PI); ctx.stroke(); break;
+      default:
+        ctx.beginPath();
+        ctx.moveTo(0,s*0.3); ctx.lineTo(s*0.3,0);
+        ctx.moveTo(s*0.7,s); ctx.lineTo(s,s*0.7);
+        ctx.stroke();
+    }
   }
-  const { t, m } = parseParams();
+  function updatePreviews(){ previews.forEach(drawPreview); }
+  colorPicker.addEventListener('input', updatePreviews);
+  document.addEventListener('DOMContentLoaded', updatePreviews);
 
-  if (t && m) {
-    formBox.style.display = 'none';
-    linkBox.style.display = 'none';
-    cardBox.style.display = 'block';
-    cardTitle.textContent = decodeURIComponent(t);
-    cardMsg.textContent = decodeURIComponent(m);
-    setupScratch();
-  } else {
-    makeBtn.onclick = () => {
-      const tt = encodeURIComponent(titleInput.value.trim());
-      const mm = encodeURIComponent(msgInput.value.trim());
-      if (!tt || !mm) return;
-      const u = new URL(window.location.href);
-      u.searchParams.set('t', tt);
-      u.searchParams.set('m', mm);
-      linkInput.value = u.toString();
-      linkBox.style.display = 'block';
-    };
-    copyLink.onclick = () => { linkInput.select(); document.execCommand('copy'); };
-    viewLink.onclick = () => window.open(linkInput.value, '_blank');
-  }
+  // Створення посилання
+  makeBtn.addEventListener('click', () => {
+    if(!titleInput.value.trim()||!msgInput.value.trim()) return;
+    const url = new URL(window.location.href);
+    url.searchParams.set('t', encodeURIComponent(titleInput.value.trim()));
+    url.searchParams.set('m', encodeURIComponent(msgInput.value.trim()));
+    url.searchParams.set('p', document.querySelector('input[name=pattern]:checked').value);
+    url.searchParams.set('c', colorPicker.value.slice(1));
+    linkInput.value = url;
+    linkDisplay.style.display = 'block';
+  });
+  copyBtn.addEventListener('click', () => { linkInput.select(); document.execCommand('copy'); });
+  viewBtn.addEventListener('click', () => { window.open(linkInput.value,'_blank'); });
 
-  function setupScratch() {
-    const canvas = document.getElementById('scratch');
-    const ctx = canvas.getContext('2d');
-    let scratching = false;
+  // Ініціалізація «монетного» стирання
+  function initScratch(pattern, colHex) {
+    const canvas = document.getElementById('scratchCanvas');
+    const ctx    = canvas.getContext('2d');
+    const {width, height} = scratchArea.getBoundingClientRect();
+    canvas.width = width; canvas.height = height;
 
-    function createPattern() {
+    let drawing = false, revealed = false;
+    const r = 20; // радіус «монети»
+
+    function createPattern(type, color) {
       const p = document.createElement('canvas');
-      const sz = 30;
-      p.width = p.height = sz;
-      const c = p.getContext('2d');
-      c.fillStyle = '#888'; c.fillRect(0,0,sz,sz);
-      c.strokeStyle = '#666'; c.lineWidth = 2;
-      c.beginPath(); c.moveTo(0,0); c.lineTo(sz,sz);
-      c.moveTo(sz,0); c.lineTo(0,sz);
-      c.stroke();
-      return c.createPattern(p,'repeat');
+      p.width=p.height=30;
+      const pc=p.getContext('2d');
+      pc.fillStyle = color; pc.fillRect(0,0,30,30);
+      pc.strokeStyle='rgba(255,255,255,0.3)'; pc.lineWidth=1;
+      switch(type){
+        case 'dots': pc.beginPath(); pc.arc(15,15,6,0,2*Math.PI); pc.fill();break;
+        case 'stripes': pc.beginPath();pc.moveTo(0,15);pc.lineTo(30,15);pc.stroke();break;
+        case 'grid':
+          pc.beginPath();
+          pc.moveTo(15,0);pc.lineTo(15,30);
+          pc.moveTo(0,15);pc.lineTo(30,15);
+          pc.stroke();break;
+        case 'waves':
+          pc.beginPath(); for(let i=0;i<30;i+=8) pc.arc(i,15,3,0,Math.PI); pc.stroke();break;
+        default:
+          pc.beginPath();
+          pc.moveTo(0,9);pc.lineTo(9,0);
+          pc.moveTo(21,30);pc.lineTo(30,21);
+          pc.stroke();
+      }
+      return pc.createPattern(p,'repeat');
     }
 
-    function resize() {
-      const rect = cardBox.getBoundingClientRect();
-      canvas.width = rect.width;
-      canvas.height = rect.height;
-      ctx.fillStyle = createPattern();
-      ctx.fillRect(0,0,canvas.width,canvas.height);
+    // Малюємо фольгу
+    const foil = createPattern(pattern, '#'+colHex);
+    ctx.globalCompositeOperation='source-over';
+    ctx.fillStyle=foil;
+    ctx.fillRect(0,0,width,height);
+
+    // Стираємо тут
+    ctx.globalCompositeOperation='destination-out';
+
+    // Звуки
+    const snd1 = new Audio('https://example.com/sounds/scratch.mp3');
+    const snd2 = new Audio('https://example.com/sounds/reveal.mp3');
+
+    function start(e){ drawing=true; snd1.play(); stamp(e); }
+    function end(e){
+      drawing=false;
+      if(e.type==='mouseup'&&!revealed){
+        const img=ctx.getImageData(0,0,width,height).data;
+        let clr=0;
+        for(let i=3;i<img.length;i+=4) if(img[i]===0) clr++;
+        if(clr/(width*height)>0.5){ revealed=true; snd2.play(); confetti({particleCount:150,spread:90}); }
+      }
+    }
+    function stamp(e){
+      if(!drawing) return;
+      const x=e.offsetX, y=e.offsetY;
+      ctx.beginPath();
+      ctx.arc(x,y,r,0,Math.PI*2);
+      ctx.fill();
     }
 
-    window.addEventListener('resize', resize);
-    resize();
-    canvas.onmousedown = () => scratching = true;
-    canvas.onmouseup = () => scratching = false;
-    canvas.onmousemove = e => {
-      if (!scratching) return;
-      const r = canvas.getBoundingClientRect();
-      const x = e.clientX - r.left;
-      const y = e.clientY - r.top;
-      ctx.globalCompositeOperation = 'destination-out';
-      ctx.beginPath(); ctx.arc(x,y,25,0,2*Math.PI); ctx.fill();
-      ctx.globalCompositeOperation = 'source-over';
-    };
+    // Події миші (без mouseout)
+    canvas.addEventListener('mousedown', start);
+    canvas.addEventListener('mousemove', stamp);
+    canvas.addEventListener('mouseup',   end);
+
+    // Touch
+    canvas.addEventListener('touchstart', e=>{e.preventDefault(); start(e.touches[0]);});
+    canvas.addEventListener('touchmove',  e=>{e.preventDefault(); stamp(e.touches[0]);});
+    canvas.addEventListener('touchend',   e=>{e.preventDefault(); end({type:'mouseup'});});
+  }
+
+  // Запуск при наявності параметрів
+  const params = new URLSearchParams(window.location.search);
+  const t = params.get('t'), m = params.get('m'), p = params.get('p'), c = params.get('c');
+  if(t && m) {
+    document.getElementById('createForm').style.display='none';
+    linkDisplay.style.display='none';
+    scratchArea.style.display='block';
+    cardTitle.textContent=decodeURIComponent(t);
+    cardMsg.textContent=decodeURIComponent(m);
+    initScratch(p, c);
   }
 </script>
 </body>
