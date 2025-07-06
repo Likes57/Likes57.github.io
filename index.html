@@ -3,204 +3,236 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Листівка зі скретч-ефектом</title>
+  <title>Magic Scratch Card</title>
   <style>
+    /* Reset & Body */
+    * { box-sizing: border-box; margin:0; padding:0; }
     body {
-      margin: 0;
-      padding: 0;
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      background: #1a1f36;
+      font-family: 'Verdana', sans-serif;
+      color: #f0f0f0;
     }
-    .form-container, .link-container {
-      margin-bottom: 20px;
+    .container {
+      width: 100%; max-width: 460px;
+      padding: 20px;
       text-align: center;
     }
-    .form-container input, .form-container textarea {
-      width: 300px;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+    h1 {
+      font-size: 2.2rem;
       margin-bottom: 8px;
-      font-size: 1em;
+      background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
-    .form-container button, .link-container button {
-      padding: 8px 16px;
+    p.subtitle {
+      font-size: 1rem;
+      margin-bottom: 20px;
+      opacity: 0.8;
+    }
+    /* Input Form */
+    .form-box {
+      background: #2e324b;
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      display: grid; gap:12px;
+      margin-bottom: 20px;
+    }
+    .form-box input,
+    .form-box textarea {
+      width: 100%;
+      padding: 10px;
+      font-size: 0.95rem;
+      border: 1px solid #444862;
+      border-radius: 6px;
+      background: #272b45;
+      color: #e0e0e0;
+      outline: none;
+    }
+    .form-box button {
+      padding: 12px;
+      font-size: 1rem;
       border: none;
-      background: #4CAF50;
-      color: white;
-      border-radius: 4px;
+      border-radius: 6px;
+      background: #ff9a9e;
+      color: #1a1f36;
       cursor: pointer;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-      font-size: 1em;
+      transition: transform 0.2s;
     }
-    .form-container button:hover, .link-container button:hover {
-      background: #45A049;
+    .form-box button:hover {
+      transform: scale(1.03);
     }
-    .card-container {
+    /* Link Box */
+    .link-box {
+      background: #2e324b;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      margin-bottom: 20px;
+      display: none;
+    }
+    .link-box p {
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    .link-box input {
+      width: calc(100% - 20px);
+      padding: 8px;
+      border: 1px solid #444862;
+      border-radius: 6px;
+      background: #272b45;
+      color: #e0e0e0;
+      margin-bottom: 10px;
+    }
+    .link-box .actions {
+      display: flex; justify-content: space-between; gap:8px;
+    }
+    .link-box .actions button {
+      flex:1;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      background: #fad0c4;
+      color: #1a1f36;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .link-box .actions button:hover {
+      opacity: 0.8;
+    }
+    /* Card */
+    .card {
       position: relative;
-      width: 420px;
-      height: 320px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-      border-radius: 16px;
+      width: 100%; aspect-ratio:4/3;
+      border-radius: 12px;
       overflow: hidden;
-      background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-      border: 2px solid #fff;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      display: none;
+    }
+    .card::before {
+      content:'';
+      position:absolute; inset:0;
+      background: radial-gradient(circle at top left, #567df4, #2c3e50);
+      z-index:0;
     }
     .card-content {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      padding: 30px;
+      position: relative; z-index:1;
+      padding: 24px;
       text-align: center;
-      box-sizing: border-box;
-      z-index: 1;
-      color: #444;
-      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" opacity="0.1"><circle cx="10" cy="10" r="2" fill="white"/></svg>') repeat;
     }
-    .card-content h1 {
-      margin-top: 50px;
-      font-size: 2.2em;
-      color: #333;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    .card-content h2 {
+      font-size: 1.6rem;
+      margin-bottom: 12px;
     }
     .card-content p {
-      margin-top: 20px;
-      font-size: 1.1em;
-      line-height: 1.4;
-      color: #555;
+      font-size: 1rem;
+      line-height:1.4;
     }
-    #scratchCanvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 2;
-      cursor: pointer;
+    #scratch {
+      position:absolute; inset:0;
+      z-index:2;
+      cursor: crosshair;
     }
   </style>
 </head>
 <body>
-<div class="form-container" id="formContainer">
-  <input type="text" id="inputTitle" placeholder="Введіть заголовок" /> <br />
-  <textarea id="inputMessage" rows="3" placeholder="Введіть повідомлення"></textarea> <br />
-  <button id="createBtn">Створити листівку</button>
-</div>
-<div class="link-container" id="linkContainer" style="display:none;">
-  <input type="text" id="shareLink" readonly style="width:300px;" /> <br />
-  <button id="copyBtn">Копіювати посилання</button>
-</div>
-<div class="card-container" id="cardContainer" style="display:none;">
-  <div class="card-content">
-    <h1 id="cardTitle">Вітаю!</h1>
-    <p id="cardMessage">Бажаю тобі гарного дня!</p>
+<div class="container">
+  <h1>Magic Scratch Card</h1>
+  <p class="subtitle">Заховайте таємницю та здивуйте друзів!</p>
+
+  <div class="form-box" id="formBox">
+    <input type="text" id="titleInput" placeholder="Заголовок" />
+    <textarea id="msgInput" rows="3" placeholder="Ваш секретний текст..."></textarea>
+    <button id="makeBtn">Створити</button>
   </div>
-  <canvas id="scratchCanvas"></canvas>
+
+  <div class="link-box" id="linkBox">
+    <p>Готово! Поділіться цим посиланням:</p>
+    <input type="text" id="linkInput" readonly />
+    <div class="actions">
+      <button id="copyLink">Копіювати</button>
+      <button id="viewLink">Переглянути</button>
+    </div>
+  </div>
+
+  <div class="card" id="cardBox">
+    <div class="card-content">
+      <h2 id="cardTitle">Hello!</h2>
+      <p id="cardMsg">Scratch to reveal your surprise!</p>
+    </div>
+    <canvas id="scratch"></canvas>
+  </div>
 </div>
 
 <script>
-  // Підключення елементів
-  const formContainer = document.getElementById('formContainer');
-  const linkContainer = document.getElementById('linkContainer');
-  const cardContainer = document.getElementById('cardContainer');
-  const titleEl = document.getElementById('cardTitle');
-  const msgEl = document.getElementById('cardMessage');
-  const createBtn = document.getElementById('createBtn');
-  const copyBtn = document.getElementById('copyBtn');
-  const shareLinkInput = document.getElementById('shareLink');
+  const formBox = document.getElementById('formBox');
+  const linkBox = document.getElementById('linkBox');
+  const cardBox = document.getElementById('cardBox');
+  const titleInput = document.getElementById('titleInput');
+  const msgInput = document.getElementById('msgInput');
+  const makeBtn = document.getElementById('makeBtn');
+  const linkInput = document.getElementById('linkInput');
+  const copyLink = document.getElementById('copyLink');
+  const viewLink = document.getElementById('viewLink');
+  const cardTitle = document.getElementById('cardTitle');
+  const cardMsg = document.getElementById('cardMsg');
 
-  // Функція для читання параметрів URL
-  function getParams() {
-    const params = new URLSearchParams(window.location.search);
-    return { title: params.get('title'), message: params.get('message') };
+  function parseParams() {
+    const p = new URLSearchParams(window.location.search);
+    return { t: p.get('t'), m: p.get('m') };
   }
+  const { t, m } = parseParams();
 
-  // ініціалізація картки з параметрів
-  const { title, message } = getParams();
-  if (title && message) {
-    // показуємо картку без форм
-    formContainer.style.display = 'none';
-    linkContainer.style.display = 'none';
-    cardContainer.style.display = 'block';
-    titleEl.textContent = decodeURIComponent(title);
-    msgEl.textContent = decodeURIComponent(message);
-    initScratch();
+  if (t && m) {
+    formBox.style.display = 'none';
+    linkBox.style.display = 'none';
+    cardBox.style.display = 'block';
+    cardTitle.textContent = decodeURIComponent(t);
+    cardMsg.textContent = decodeURIComponent(m);
+    setupScratch();
   } else {
-    // показуємо форму створення листівки
-    formContainer.style.display = 'block';
-    createBtn.addEventListener('click', () => {
-      const t = encodeURIComponent(document.getElementById('inputTitle').value.trim());
-      const m = encodeURIComponent(document.getElementById('inputMessage').value.trim());
-      if (!t || !m) return;
-      const url = new URL(window.location.href);
-      url.searchParams.set('title', t);
-      url.searchParams.set('message', m);
-      shareLinkInput.value = url.toString();
-      shareLinkInput.select();
-      linkContainer.style.display = 'block';
-    });
-    copyBtn.addEventListener('click', () => {
-      shareLinkInput.select(); document.execCommand('copy');
-    });
+    makeBtn.onclick = () => {
+      const tt = encodeURIComponent(titleInput.value.trim());
+      const mm = encodeURIComponent(msgInput.value.trim());
+      if (!tt || !mm) return;
+      const u = new URL(window.location.href);
+      u.searchParams.set('t', tt);
+      u.searchParams.set('m', mm);
+      linkInput.value = u.toString();
+      linkBox.style.display = 'block';
+    };
+    copyLink.onclick = () => { linkInput.select(); document.execCommand('copy'); };
+    viewLink.onclick = () => window.open(linkInput.value, '_blank');
   }
 
-  // Функціонал скретч
-  function initScratch() {
-    const canvas = document.getElementById('scratchCanvas');
-    const container = document.getElementById('cardContainer');
+  function setupScratch() {
+    const canvas = document.getElementById('scratch');
     const ctx = canvas.getContext('2d');
-    let isDrawing = false;
-
-    function createPatternCanvas() {
-      const pCanvas = document.createElement('canvas');
-      const size = 40;
-      pCanvas.width = pCanvas.height = size;
-      const pCtx = pCanvas.getContext('2d');
-      pCtx.fillStyle = '#bbb';
-      pCtx.fillRect(0, 0, size, size);
-      pCtx.strokeStyle = '#999';
-      pCtx.lineWidth = 2;
-      pCtx.beginPath();
-      pCtx.moveTo(0, 0);
-      pCtx.lineTo(size, size);
-      pCtx.moveTo(size, 0);
-      pCtx.lineTo(0, size);
-      pCtx.stroke();
-      return pCtx.createPattern(pCanvas, 'repeat');
+    let scratching = false;
+    function resize() {
+      const rect = cardBox.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      ctx.fillStyle = '#b0b0b0';
+      ctx.fillRect(0,0,canvas.width,canvas.height);
     }
-
-    function resizeCanvas() {
-      canvas.width = container.clientWidth;
-      canvas.height = container.clientHeight;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const pattern = createPatternCanvas();
-      ctx.fillStyle = pattern;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-    canvas.addEventListener('mousedown', () => isDrawing = true);
-    canvas.addEventListener('mouseup', () => isDrawing = false);
-    canvas.addEventListener('mouseleave', () => isDrawing = false);
-    canvas.addEventListener('mousemove', (e) => {
-      if (!isDrawing) return;
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+    window.addEventListener('resize', resize);
+    resize();
+    canvas.onmousedown = () => scratching = true;
+    canvas.onmouseup = () => scratching = false;
+    canvas.onmousemove = e => {
+      if (!scratching) return;
+      const r = canvas.getBoundingClientRect();
+      const x = e.clientX - r.left;
+      const y = e.clientY - r.top;
       ctx.globalCompositeOperation = 'destination-out';
-      ctx.beginPath();
-      ctx.arc(x, y, 25, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.beginPath(); ctx.arc(x,y,25,0,2*Math.PI); ctx.fill();
       ctx.globalCompositeOperation = 'source-over';
-    });
+    };
   }
 </script>
 </body>
