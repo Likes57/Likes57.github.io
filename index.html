@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Листівка зі скретч-ефектом</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .card-container {
+      position: relative;
+      width: 420px;
+      height: 320px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      border-radius: 16px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+      border: 2px solid #fff;
+    }
+    .card-content {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      padding: 30px;
+      text-align: center;
+      box-sizing: border-box;
+      z-index: 1;
+      color: #444;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" opacity="0.1"><circle cx="10" cy="10" r="2" fill="white"/></svg>') repeat;
+    }
+    .card-content h1 {
+      margin-top: 50px;
+      font-size: 2.2em;
+      color: #333;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+    .card-content p {
+      margin-top: 20px;
+      font-size: 1.1em;
+      line-height: 1.4;
+      color: #555;
+    }
+    #scratchCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      cursor: pointer;
+    }
+    .link-container {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .link-container input {
+      width: 300px;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-right: 8px;
+    }
+    .link-container button {
+      padding: 8px 12px;
+      border: none;
+      background: #4CAF50;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .link-container button:hover {
+      background: #45A049;
+    }
+  </style>
+</head>
+<body>
+<div class="card-container">
+  <div class="card-content">
+    <h1>Вітаю!</h1>
+    <p>Бажаю тобі гарного дня, яскравих вражень та позитивних емоцій!</p>
+  </div>
+  <canvas id="scratchCanvas"></canvas>
+</div>
+<div class="link-container">
+  <input type="text" id="shareLink" readonly placeholder="Натисніть кнопку для створення посилання" />
+  <button id="generateBtn">Згенерувати посилання</button>
+</div>
+
+<script>
+  // Скретч-ефект
+  const canvas = document.getElementById('scratchCanvas');
+  const container = document.querySelector('.card-container');
+  const ctx = canvas.getContext('2d');
+  let isDrawing = false;
+
+  function createPatternCanvas() {
+    const pCanvas = document.createElement('canvas');
+    const size = 40;
+    pCanvas.width = pCanvas.height = size;
+    const pCtx = pCanvas.getContext('2d');
+    pCtx.fillStyle = '#bbb';
+    pCtx.fillRect(0, 0, size, size);
+    pCtx.strokeStyle = '#999';
+    pCtx.lineWidth = 2;
+    pCtx.beginPath();
+    pCtx.moveTo(0, 0);
+    pCtx.lineTo(size, size);
+    pCtx.moveTo(size, 0);
+    pCtx.lineTo(0, size);
+    pCtx.stroke();
+    return pCtx.createPattern(pCanvas, 'repeat');
+  }
+
+  function resizeCanvas() {
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const pattern = createPatternCanvas();
+    ctx.fillStyle = pattern;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  canvas.addEventListener('mousedown', () => isDrawing = true);
+  canvas.addEventListener('mouseup', () => isDrawing = false);
+  canvas.addEventListener('mouseleave', () => isDrawing = false);
+  canvas.addEventListener('mousemove', (e) => {
+    if (!isDrawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath();
+    ctx.arc(x, y, 25, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+  });
+
+  // Генерація та відображення унікального посилання
+  const btn = document.getElementById('generateBtn');
+  const input = document.getElementById('shareLink');
+
+  function generateId() {
+    return 'card-' + Math.random().toString(36).substr(2, 9);
+  }
+
+  function displayLink(id) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('id', id);
+    input.value = url.toString();
+    btn.style.display = 'none';
+  }
+
+  btn.addEventListener('click', () => {
+    let id = localStorage.getItem('cardId');
+    if (!id) {
+      id = generateId();
+      localStorage.setItem('cardId', id);
+    }
+    displayLink(id);
+    input.select();
+    document.execCommand('copy');
+  });
+
+  // При завантаженні перевіряємо параметр id
+  const params = new URLSearchParams(window.location.search);
+  if (params.has('id')) {
+    const id = params.get('id');
+    localStorage.setItem('cardId', id);
+    displayLink(id);
+  }
+</script>
+</body>
+</html>
