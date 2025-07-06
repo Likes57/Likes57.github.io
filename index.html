@@ -75,10 +75,7 @@
       margin-bottom: 20px;
       display: none;
     }
-    .link-box p {
-      margin-bottom: 8px;
-      font-weight: bold;
-    }
+    .link-box p { margin-bottom: 8px; font-weight: bold; }
     .link-box input {
       width: calc(100% - 20px);
       padding: 8px;
@@ -101,9 +98,7 @@
       cursor: pointer;
       transition: opacity 0.2s;
     }
-    .link-box .actions button:hover {
-      opacity: 0.8;
-    }
+    .link-box .actions button:hover { opacity: 0.8; }
     /* Card */
     .card {
       position: relative;
@@ -145,7 +140,7 @@
   <p class="subtitle">Заховайте таємницю та здивуйте друзів!</p>
 
   <div class="form-box" id="formBox">
-    <input type="text" id="titleInput" placeholder="Заголовок" />
+    <input type="text" id="titleInput" placeholder="Заголовок (наприклад: You Rock!)" />
     <textarea id="msgInput" rows="3" placeholder="Ваш секретний текст..."></textarea>
     <button id="makeBtn">Створити</button>
   </div>
@@ -213,13 +208,28 @@
     const canvas = document.getElementById('scratch');
     const ctx = canvas.getContext('2d');
     let scratching = false;
+
+    function createPattern() {
+      const p = document.createElement('canvas');
+      const sz = 30;
+      p.width = p.height = sz;
+      const c = p.getContext('2d');
+      c.fillStyle = '#888'; c.fillRect(0,0,sz,sz);
+      c.strokeStyle = '#666'; c.lineWidth = 2;
+      c.beginPath(); c.moveTo(0,0); c.lineTo(sz,sz);
+      c.moveTo(sz,0); c.lineTo(0,sz);
+      c.stroke();
+      return c.createPattern(p,'repeat');
+    }
+
     function resize() {
       const rect = cardBox.getBoundingClientRect();
       canvas.width = rect.width;
       canvas.height = rect.height;
-      ctx.fillStyle = '#b0b0b0';
+      ctx.fillStyle = createPattern();
       ctx.fillRect(0,0,canvas.width,canvas.height);
     }
+
     window.addEventListener('resize', resize);
     resize();
     canvas.onmousedown = () => scratching = true;
