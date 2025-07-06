@@ -16,6 +16,31 @@
       background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
+    .form-container, .link-container {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .form-container input, .form-container textarea {
+      width: 300px;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      font-size: 1em;
+    }
+    .form-container button, .link-container button {
+      padding: 8px 16px;
+      border: none;
+      background: #4CAF50;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      font-size: 1em;
+    }
+    .form-container button:hover, .link-container button:hover {
+      background: #45A049;
+    }
     .card-container {
       position: relative;
       width: 420px;
@@ -60,128 +85,122 @@
       z-index: 2;
       cursor: pointer;
     }
-    .link-container {
-      margin-top: 20px;
-      text-align: center;
-    }
-    .link-container input {
-      width: 300px;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      margin-right: 8px;
-    }
-    .link-container button {
-      padding: 8px 12px;
-      border: none;
-      background: #4CAF50;
-      color: white;
-      border-radius: 4px;
-      cursor: pointer;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-    .link-container button:hover {
-      background: #45A049;
-    }
   </style>
 </head>
 <body>
-<div class="card-container">
+<div class="form-container" id="formContainer">
+  <input type="text" id="inputTitle" placeholder="Введіть заголовок" /> <br />
+  <textarea id="inputMessage" rows="3" placeholder="Введіть повідомлення"></textarea> <br />
+  <button id="createBtn">Створити листівку</button>
+</div>
+<div class="link-container" id="linkContainer" style="display:none;">
+  <input type="text" id="shareLink" readonly style="width:300px;" /> <br />
+  <button id="copyBtn">Копіювати посилання</button>
+</div>
+<div class="card-container" id="cardContainer" style="display:none;">
   <div class="card-content">
-    <h1>Вітаю!</h1>
-    <p>Бажаю тобі гарного дня, яскравих вражень та позитивних емоцій!</p>
+    <h1 id="cardTitle">Вітаю!</h1>
+    <p id="cardMessage">Бажаю тобі гарного дня!</p>
   </div>
   <canvas id="scratchCanvas"></canvas>
 </div>
-<div class="link-container">
-  <input type="text" id="shareLink" readonly placeholder="Натисніть кнопку для створення посилання" />
-  <button id="generateBtn">Згенерувати посилання</button>
-</div>
 
 <script>
-  // Скретч-ефект
-  const canvas = document.getElementById('scratchCanvas');
-  const container = document.querySelector('.card-container');
-  const ctx = canvas.getContext('2d');
-  let isDrawing = false;
+  // Підключення елементів
+  const formContainer = document.getElementById('formContainer');
+  const linkContainer = document.getElementById('linkContainer');
+  const cardContainer = document.getElementById('cardContainer');
+  const titleEl = document.getElementById('cardTitle');
+  const msgEl = document.getElementById('cardMessage');
+  const createBtn = document.getElementById('createBtn');
+  const copyBtn = document.getElementById('copyBtn');
+  const shareLinkInput = document.getElementById('shareLink');
 
-  function createPatternCanvas() {
-    const pCanvas = document.createElement('canvas');
-    const size = 40;
-    pCanvas.width = pCanvas.height = size;
-    const pCtx = pCanvas.getContext('2d');
-    pCtx.fillStyle = '#bbb';
-    pCtx.fillRect(0, 0, size, size);
-    pCtx.strokeStyle = '#999';
-    pCtx.lineWidth = 2;
-    pCtx.beginPath();
-    pCtx.moveTo(0, 0);
-    pCtx.lineTo(size, size);
-    pCtx.moveTo(size, 0);
-    pCtx.lineTo(0, size);
-    pCtx.stroke();
-    return pCtx.createPattern(pCanvas, 'repeat');
+  // Функція для читання параметрів URL
+  function getParams() {
+    const params = new URLSearchParams(window.location.search);
+    return { title: params.get('title'), message: params.get('message') };
   }
 
-  function resizeCanvas() {
-    canvas.width = container.clientWidth;
-    canvas.height = container.clientHeight;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const pattern = createPatternCanvas();
-    ctx.fillStyle = pattern;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // ініціалізація картки з параметрів
+  const { title, message } = getParams();
+  if (title && message) {
+    // показуємо картку без форм
+    formContainer.style.display = 'none';
+    linkContainer.style.display = 'none';
+    cardContainer.style.display = 'block';
+    titleEl.textContent = decodeURIComponent(title);
+    msgEl.textContent = decodeURIComponent(message);
+    initScratch();
+  } else {
+    // показуємо форму створення листівки
+    formContainer.style.display = 'block';
+    createBtn.addEventListener('click', () => {
+      const t = encodeURIComponent(document.getElementById('inputTitle').value.trim());
+      const m = encodeURIComponent(document.getElementById('inputMessage').value.trim());
+      if (!t || !m) return;
+      const url = new URL(window.location.href);
+      url.searchParams.set('title', t);
+      url.searchParams.set('message', m);
+      shareLinkInput.value = url.toString();
+      shareLinkInput.select();
+      linkContainer.style.display = 'block';
+    });
+    copyBtn.addEventListener('click', () => {
+      shareLinkInput.select(); document.execCommand('copy');
+    });
   }
 
-  window.addEventListener('resize', resizeCanvas);
-  resizeCanvas();
+  // Функціонал скретч
+  function initScratch() {
+    const canvas = document.getElementById('scratchCanvas');
+    const container = document.getElementById('cardContainer');
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
 
-  canvas.addEventListener('mousedown', () => isDrawing = true);
-  canvas.addEventListener('mouseup', () => isDrawing = false);
-  canvas.addEventListener('mouseleave', () => isDrawing = false);
-  canvas.addEventListener('mousemove', (e) => {
-    if (!isDrawing) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.beginPath();
-    ctx.arc(x, y, 25, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.globalCompositeOperation = 'source-over';
-  });
-
-  // Генерація та відображення унікального посилання
-  const btn = document.getElementById('generateBtn');
-  const input = document.getElementById('shareLink');
-
-  function generateId() {
-    return 'card-' + Math.random().toString(36).substr(2, 9);
-  }
-
-  function displayLink(id) {
-    const url = new URL(window.location.href);
-    url.searchParams.set('id', id);
-    input.value = url.toString();
-    btn.style.display = 'none';
-  }
-
-  btn.addEventListener('click', () => {
-    let id = localStorage.getItem('cardId');
-    if (!id) {
-      id = generateId();
-      localStorage.setItem('cardId', id);
+    function createPatternCanvas() {
+      const pCanvas = document.createElement('canvas');
+      const size = 40;
+      pCanvas.width = pCanvas.height = size;
+      const pCtx = pCanvas.getContext('2d');
+      pCtx.fillStyle = '#bbb';
+      pCtx.fillRect(0, 0, size, size);
+      pCtx.strokeStyle = '#999';
+      pCtx.lineWidth = 2;
+      pCtx.beginPath();
+      pCtx.moveTo(0, 0);
+      pCtx.lineTo(size, size);
+      pCtx.moveTo(size, 0);
+      pCtx.lineTo(0, size);
+      pCtx.stroke();
+      return pCtx.createPattern(pCanvas, 'repeat');
     }
-    displayLink(id);
-    input.select();
-    document.execCommand('copy');
-  });
 
-  // При завантаженні перевіряємо параметр id
-  const params = new URLSearchParams(window.location.search);
-  if (params.has('id')) {
-    const id = params.get('id');
-    localStorage.setItem('cardId', id);
-    displayLink(id);
+    function resizeCanvas() {
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const pattern = createPatternCanvas();
+      ctx.fillStyle = pattern;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    canvas.addEventListener('mousedown', () => isDrawing = true);
+    canvas.addEventListener('mouseup', () => isDrawing = false);
+    canvas.addEventListener('mouseleave', () => isDrawing = false);
+    canvas.addEventListener('mousemove', (e) => {
+      if (!isDrawing) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath();
+      ctx.arc(x, y, 25, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+    });
   }
 </script>
 </body>
